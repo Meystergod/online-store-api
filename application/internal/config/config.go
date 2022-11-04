@@ -12,6 +12,10 @@ type Config struct {
 		IsDebug       bool   `yaml:"is-debug" env:"IS_DEBUG" env-default:"false"`
 		IsDevelopment bool   `yaml:"is-development" env:"IS_DEV" env-default:"false"`
 		LogLevel      string `yaml:"log-level" env:"LOG_LEVEL" env-default:"trace"`
+		AdminUser     struct {
+			Email    string `yaml:"email" env:"ADMIN_EMAIL" env-required:"true"`
+			Password string `yaml:"password" env:"ADMIN_PASSWORD" env-required:"true"`
+		} `yaml:"admin-user"`
 	} `yaml:"app-config"`
 	HTTP struct {
 		IP   string `yaml:"ip" env:"BIND_IP" env-default:"0.0.0.0"`

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/Meystergod/online-store-api/pkg/logging"
+	"github.com/Meystergod/online-store-api/application/pkg/logging"
 )
 
 func Graceful(logger *logging.Logger, signals []os.Signal, closeItems ...io.Closer) {

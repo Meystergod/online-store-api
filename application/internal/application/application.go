@@ -11,17 +11,20 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Meystergod/online-store-api/internal/config"
-	"github.com/Meystergod/online-store-api/pkg/logging"
-	"github.com/Meystergod/online-store-api/pkg/shutdown"
+	_ "github.com/Meystergod/online-store-api/application/docs"
+	"github.com/Meystergod/online-store-api/application/internal/config"
+	"github.com/Meystergod/online-store-api/application/pkg/logging"
+	"github.com/Meystergod/online-store-api/application/pkg/metric"
+	"github.com/Meystergod/online-store-api/application/pkg/shutdown"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type App struct {
-	logger     *logging.Logger
 	cfg        *config.Config
+	logger     *logging.Logger
 	router     *httprouter.Router
 	httpServer *http.Server
 }
@@ -30,11 +33,21 @@ func NewApp(cfg *config.Config, logger *logging.Logger) (App, error) {
 	logger.Info("router initializing")
 	router := httprouter.New()
 
-	logger.Info("handler initializing")
+	logger.Info("swagger docs initializing")
+	router.Handler(
+		http.MethodGet,
+		"/swagger",
+		http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently),
+	)
+	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
+
+	logger.Info("heartbeat metric initializing")
+	metricHandler := metric.Handler{}
+	metricHandler.Register(router)
 
 	return App{
-		logger: logger,
 		cfg:    cfg,
+		logger: logger,
 		router: router,
 	}, nil
 }
@@ -49,28 +62,14 @@ func (s *App) Run(ctx context.Context) error {
 }
 
 func (s *App) startHTTP(ctx context.Context) error {
-	logger := s.logger.WithFields(map[string]interface{}{
-		"IP":   s.cfg.HTTP.IP,
-		"Port": s.cfg.HTTP.Port,
-	})
-	logger.Info("HTTP server initializing")
+	s.logger.Info("HTTP server initializing")
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.cfg.HTTP.IP, s.cfg.HTTP.Port))
 	if err != nil {
 		s.logger.WithError(err).Fatal("failed to create listener")
 	}
 
-	logger = s.logger.WithFields(map[string]interface{}{
-		"AllowedMethods":     s.cfg.HTTP.CORS.AllowedMethods,
-		"AllowedOrigins":     s.cfg.HTTP.CORS.AllowedOrigins,
-		"AllowCredentials":   s.cfg.HTTP.CORS.AllowCredentials,
-		"AllowedHeaders":     s.cfg.HTTP.CORS.AllowedHeaders,
-		"OptionsPassthrough": s.cfg.HTTP.CORS.OptionsPassthrough,
-		"ExposedHeaders":     s.cfg.HTTP.CORS.ExposedHeaders,
-		"Debug":              s.cfg.HTTP.CORS.Debug,
-	})
-
-	logger.Info("cors initializing")
+	s.logger.Info("cors initializing")
 	c := cors.New(cors.Options{
 		AllowedMethods:     s.cfg.HTTP.CORS.AllowedMethods,
 		AllowedOrigins:     s.cfg.HTTP.CORS.AllowedOrigins,
@@ -85,20 +84,26 @@ func (s *App) startHTTP(ctx context.Context) error {
 
 	s.httpServer = &http.Server{
 		Handler:      handler,
-		WriteTimeout: 250 * time.Millisecond,
-		ReadTimeout:  250 * time.Millisecond,
+		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  10 * time.Second,
 	}
 
-	go shutdown.Graceful(s.logger, []os.Signal{syscall.SIGABRT, syscall.SIGQUIT, syscall.SIGHUP, os.Interrupt, syscall.SIGTERM}, s.httpServer)
+	go shutdown.Graceful(s.logger, []os.Signal{
+		syscall.SIGABRT,
+		syscall.SIGQUIT,
+		syscall.SIGHUP,
+		syscall.SIGTERM,
+		os.Interrupt,
+	}, s.httpServer)
 
-	logger.Info("application initialized and started")
+	s.logger.Info("application initialized and started")
 
 	if err = s.httpServer.Serve(listener); err != nil {
 		switch {
 		case errors.Is(err, http.ErrServerClosed):
-			logger.Warning("server shutdown")
+			s.logger.Warning("server shutdown")
 		default:
-			logger.Fatal(err)
+			s.logger.Fatal(err)
 		}
 	}
 

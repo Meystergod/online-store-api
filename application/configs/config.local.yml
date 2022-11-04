@@ -2,6 +2,9 @@ app-config:
   is-debug: false
   is-development: false
   log-level: trace
+  admin-user:
+    email: "admin@admin.ru"
+    password: "admin"
 
 http:
   ip: 0.0.0.0

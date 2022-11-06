@@ -11,11 +11,10 @@ import (
 func main() {
 	cfg := config.GetConfig()
 
-	logging.Init(cfg.AppConfig.LogLevel)
-	logger := logging.GetLogger()
+	logger := logging.GetLogger(cfg.AppConfig.LogLevel)
 	logger.Info("logger and config initialized")
 
-	application, err := app.NewApp(cfg, logger)
+	application, err := app.NewApp(cfg, &logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -6,9 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type PgConfig struct {
@@ -27,15 +25,6 @@ func NewPgConfig(username string, password string, host string, port string, dat
 		Port:     port,
 		Database: database,
 	}
-}
-
-type Client interface {
-	Begin(context.Context) (pgx.Tx, error)
-	BeginFunc(ctx context.Context, f func(pgx.Tx) error) error
-	BeginTxFunc(ctx context.Context, txOptions pgx.TxOptions, f func(pgx.Tx) error) error
-	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
-	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
 }
 
 func NewClient(c context.Context, maxAttempts int, maxDelay time.Duration, cfg *PgConfig) (pool *pgxpool.Pool, err error) {
@@ -57,7 +46,7 @@ func NewClient(c context.Context, maxAttempts int, maxDelay time.Duration, cfg *
 			log.Fatalf("unable to parse config: %v\n", err)
 		}
 
-		pool, err = pgxpool.NewWithConfig(ctx, pgxCfg)
+		pool, err = pgxpool.ConnectConfig(ctx, pgxCfg)
 		if err != nil {
 			log.Println("failed to connect to postgres... going to do the next attempt")
 

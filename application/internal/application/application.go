@@ -18,7 +18,7 @@ import (
 	"github.com/Meystergod/online-store-api/application/pkg/metric"
 	"github.com/Meystergod/online-store-api/application/pkg/shutdown"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"

@@ -53,7 +53,7 @@ func NewApp(cfg *config.Config, logger *logging.Logger) (App, error) {
 		cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
 	)
 
-	pgClient, err := postgresql.NewClient(context.Background(), 5, time.Second*5, pgConfig)
+	pgClient, err := postgresql.NewClient(context.Background(), config.PGXPOOL_MAX_ATTEMPTS, time.Second*5, pgConfig)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -28,25 +28,13 @@ CREATE TABLE public.car_brand
     title TEXT NOT NULL
 );
 
-CREATE TABLE public.car_model
-(
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL
-);
-
-CREATE TABLE public.car_modification
-(
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL
-);
-
 CREATE TABLE public.car
 (
     id SERIAL PRIMARY KEY,
     description TEXT NOT NULL,
-    brand_id INT REFERENCES public.car_brand(id),
-    model_id INT REFERENCES public.car_model(id),
-    modification_id INT REFERENCES public.car_modification(id)
+    brand_id INT NOT NULL REFERENCES public.car_brand(id),
+    model TEXT NOT NULL,
+    modification TEXT NOT NULL
 );
 
 CREATE TABLE public.product_category
@@ -71,7 +59,7 @@ CREATE TABLE public.product_inventory
 
 CREATE TABLE public.product
 (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     brand TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -80,16 +68,17 @@ CREATE TABLE public.product
     specifications JSONB,
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
-    category_id INT REFERENCES public.product_category(id),
-    discount_id INT REFERENCES public.product_discount(id),
-    inventory_id INT REFERENCES public.product_inventory(id),
+    category_id INT NOT NULL REFERENCES public.product_category(id),
+    discount_id INT NOT NULL REFERENCES public.product_discount(id),
+    inventory_id INT NOT NULL UNIQUE REFERENCES public.product_inventory(id),
     CONSTRAINT positive_price CHECK (price > 0)
 );
 
 CREATE TABLE products_for_cars
 (
-    product_id INT REFERENCES public.product(id),
-    car_id INT REFERENCES public.car(id)
+    product_id INT NOT NULL REFERENCES public.product(id),
+    car_id INT NOT NULL REFERENCES public.car(id),
+    CONSTRAINT product_car_pkey PRIMARY KEY (product_id, car_id)
 );
 
 COMMIT;

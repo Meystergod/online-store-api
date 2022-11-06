@@ -3,8 +3,9 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
+
+	"github.com/Meystergod/online-store-api/application/pkg/logging"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -27,7 +28,9 @@ func NewPgConfig(username string, password string, host string, port string, dat
 	}
 }
 
-func NewClient(c context.Context, maxAttempts int, maxDelay time.Duration, cfg *PgConfig) (pool *pgxpool.Pool, err error) {
+func NewClient(ctx context.Context, maxAttempts int, maxDelay time.Duration, cfg *PgConfig) (pool *pgxpool.Pool, err error) {
+	logger := logging.GetLogger(ctx)
+
 	dsn := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s",
 		cfg.Username,
@@ -38,17 +41,17 @@ func NewClient(c context.Context, maxAttempts int, maxDelay time.Duration, cfg *
 	)
 
 	err = DoWithAttempts(func() error {
-		ctx, cancel := context.WithTimeout(c, 5*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
 		pgxCfg, err := pgxpool.ParseConfig(dsn)
 		if err != nil {
-			log.Fatalf("unable to parse config: %v\n", err)
+			logger.Fatalf("unable to parse config: %v\n", err)
 		}
 
 		pool, err = pgxpool.ConnectConfig(ctx, pgxCfg)
 		if err != nil {
-			log.Println("failed to connect to postgres... going to do the next attempt")
+			logger.Info("failed to connect to postgres... going to do the next attempt")
 
 			return err
 		}
@@ -57,7 +60,7 @@ func NewClient(c context.Context, maxAttempts int, maxDelay time.Duration, cfg *
 	}, maxAttempts, maxDelay)
 
 	if err != nil {
-		log.Fatal("all attempts are exceeded. unable to connect to postgres")
+		logger.Fatal("all attempts are exceeded. unable to connect to postgres")
 	}
 
 	return pool, nil

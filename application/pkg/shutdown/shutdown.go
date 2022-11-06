@@ -1,6 +1,7 @@
 package shutdown
 
 import (
+	"context"
 	"io"
 	"os"
 	"os/signal"
@@ -8,7 +9,9 @@ import (
 	"github.com/Meystergod/online-store-api/application/pkg/logging"
 )
 
-func Graceful(logger *logging.Logger, signals []os.Signal, closeItems ...io.Closer) {
+func Graceful(ctx context.Context, signals []os.Signal, closeItems ...io.Closer) {
+	logger := logging.GetLogger(ctx)
+
 	sigChannel := make(chan os.Signal, 1)
 	signal.Notify(sigChannel, signals...)
 	sig := <-sigChannel

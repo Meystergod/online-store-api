@@ -9,18 +9,21 @@ import (
 )
 
 func main() {
-	cfg := config.GetConfig()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	logger := logging.GetLogger(cfg.AppConfig.LogLevel)
-	logger.Info("logger and config initialized")
+	cfg := config.GetConfig(ctx)
 
-	application, err := app.NewApp(cfg, &logger)
+	logger := logging.GetLogger(ctx)
+	ctx = logging.ContextWithLogger(ctx, logger)
+
+	application, err := app.NewApp(ctx, cfg)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	logger.Info("running api server")
-	if application.Run(context.Background()) != nil {
+	if application.Run(ctx) != nil {
 		logger.Fatal(err)
 	}
 }

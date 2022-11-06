@@ -1,8 +1,12 @@
 package config
 
 import (
-	"log"
+	"context"
+	"flag"
+	"os"
 	"sync"
+
+	"github.com/Meystergod/online-store-api/application/pkg/logging"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -39,19 +43,37 @@ type Config struct {
 	} `yaml:"postgre-sql"`
 }
 
+const (
+	EnvCfgPathName  = "CONFIG-PATH"
+	FlagCfgPathName = "config"
+)
+
+var cfgPath string
 var instance *Config
 var once sync.Once
 
-func GetConfig() *Config {
+func GetConfig(ctx context.Context) *Config {
 	once.Do(func() {
-		log.Print("initializing config")
+		logging.GetLogger(ctx).Info("initializing config")
+
+		flag.StringVar(&cfgPath, FlagCfgPathName, CONFIG_PATH, "this is application config file")
+		flag.Parse()
+
+		if cfgPath == "" {
+			cfgPath = os.Getenv(EnvCfgPathName)
+		}
+
+		if cfgPath == "" {
+			logging.GetLogger(ctx).Fatal("config path is required")
+		}
+
 		instance = &Config{}
 
-		if err := cleanenv.ReadConfig(CONFIG_PATH, instance); err != nil {
-			helpDescription := "Help Config Description"
+		if err := cleanenv.ReadEnv(instance); err != nil {
+			helpDescription := "help config description"
 			help, _ := cleanenv.GetDescription(instance, &helpDescription)
-			log.Print(help)
-			log.Fatal(err)
+			logging.GetLogger(ctx).Info(help)
+			logging.GetLogger(ctx).Fatal(err)
 		}
 	})
 

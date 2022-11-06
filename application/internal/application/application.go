@@ -26,13 +26,14 @@ import (
 
 type App struct {
 	cfg        *config.Config
-	logger     *logging.Logger
 	router     *httprouter.Router
 	httpServer *http.Server
 	pgClient   *pgxpool.Pool
 }
 
-func NewApp(cfg *config.Config, logger *logging.Logger) (App, error) {
+func NewApp(ctx context.Context, cfg *config.Config) (App, error) {
+	logger := logging.GetLogger(ctx)
+
 	logger.Info("router initializing")
 	router := httprouter.New()
 
@@ -53,14 +54,13 @@ func NewApp(cfg *config.Config, logger *logging.Logger) (App, error) {
 		cfg.PostgreSQL.Host, cfg.PostgreSQL.Port, cfg.PostgreSQL.Database,
 	)
 
-	pgClient, err := postgresql.NewClient(context.Background(), config.PGXPOOL_MAX_ATTEMPTS, time.Second*5, pgConfig)
+	pgClient, err := postgresql.NewClient(ctx, config.PGXPOOL_MAX_ATTEMPTS, time.Second*5, pgConfig)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	return App{
 		cfg:      cfg,
-		logger:   logger,
 		router:   router,
 		pgClient: pgClient,
 	}, nil
@@ -71,19 +71,24 @@ func (s *App) Run(ctx context.Context) error {
 	grp.Go(func() error {
 		return s.startHTTP(ctx)
 	})
+	logging.GetLogger(ctx).Info("application initialized and started")
 
 	return grp.Wait()
 }
 
 func (s *App) startHTTP(ctx context.Context) error {
-	s.logger.Info("HTTP server initializing")
+	logger := logging.GetLogger(ctx).WithFields(map[string]interface{}{
+		"IP":   s.cfg.HTTP.IP,
+		"PORT": s.cfg.HTTP.Port,
+	})
+	logger.Info("HTTP server initializing")
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.cfg.HTTP.IP, s.cfg.HTTP.Port))
 	if err != nil {
-		s.logger.WithError(err).Fatal("failed to create listener")
+		logger.WithError(err).Fatal("failed to create listener")
 	}
 
-	s.logger.Info("cors initializing")
+	logging.GetLogger(ctx).Info("cors initializing")
 	c := cors.New(cors.Options{
 		AllowedMethods:     s.cfg.HTTP.CORS.AllowedMethods,
 		AllowedOrigins:     s.cfg.HTTP.CORS.AllowedOrigins,
@@ -102,7 +107,7 @@ func (s *App) startHTTP(ctx context.Context) error {
 		ReadTimeout:  10 * time.Second,
 	}
 
-	go shutdown.Graceful(s.logger, []os.Signal{
+	go shutdown.Graceful(ctx, []os.Signal{
 		syscall.SIGABRT,
 		syscall.SIGQUIT,
 		syscall.SIGHUP,
@@ -110,14 +115,14 @@ func (s *App) startHTTP(ctx context.Context) error {
 		os.Interrupt,
 	}, s.httpServer)
 
-	s.logger.Info("application initialized and started")
+	logging.GetLogger(ctx).Info("application initialized and started")
 
 	if err = s.httpServer.Serve(listener); err != nil {
 		switch {
 		case errors.Is(err, http.ErrServerClosed):
-			s.logger.Warning("server shutdown")
+			logging.GetLogger(ctx).Warning("server shutdown")
 		default:
-			s.logger.Fatal(err)
+			logging.GetLogger(ctx).Fatal(err)
 		}
 	}
 

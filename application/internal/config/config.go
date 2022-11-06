@@ -30,6 +30,13 @@ type Config struct {
 			Debug              bool     `yaml:"debug" env:"HTTP-CORS-DEBUG"`
 		} `yaml:"cors"`
 	} `yaml:"http"`
+	PostgreSQL struct {
+		Username string `env:"PSQL_USERNAME" env-required:"true"`
+		Password string `env:"PSQL_PASSWORD" env-required:"true"`
+		Host     string `env:"PSQL_HOST" env-required:"true"`
+		Port     string `env:"PSQL_PORT" env-required:"true"`
+		Database string `env:"PSQL_DATABASE" env-required:"true"`
+	} `yaml:"postgre-sql"`
 }
 
 var instance *Config

@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	_ "github.com/Meystergod/online-store-api/application/docs"
-	"github.com/Meystergod/online-store-api/application/internal/config"
-	"github.com/Meystergod/online-store-api/application/pkg/client/postgresql"
-	"github.com/Meystergod/online-store-api/application/pkg/logging"
-	"github.com/Meystergod/online-store-api/application/pkg/metric"
-	"github.com/Meystergod/online-store-api/application/pkg/shutdown"
+	_ "github.com/Meystergod/online-store-api/docs"
+	"github.com/Meystergod/online-store-api/internal/config"
+	"github.com/Meystergod/online-store-api/pkg/client/postgresql"
+	"github.com/Meystergod/online-store-api/pkg/logging"
+	"github.com/Meystergod/online-store-api/pkg/metric"
+	"github.com/Meystergod/online-store-api/pkg/shutdown"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/julienschmidt/httprouter"

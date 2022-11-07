@@ -1,4 +1,4 @@
-module github.com/Meystergod/online-store-api/application
+module github.com/Meystergod/online-store-api
 
 go 1.19
 

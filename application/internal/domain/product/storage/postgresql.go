@@ -3,9 +3,9 @@ package storage
 import (
 	"context"
 
-	"github.com/Meystergod/online-store-api/application/internal/domain/product/model"
-	db "github.com/Meystergod/online-store-api/application/pkg/client/postgresql/model"
-	"github.com/Meystergod/online-store-api/application/pkg/logging"
+	"github.com/Meystergod/online-store-api/internal/domain/product/model"
+	db "github.com/Meystergod/online-store-api/pkg/client/postgresql/model"
+	"github.com/Meystergod/online-store-api/pkg/logging"
 
 	sq "github.com/Masterminds/squirrel"
 )

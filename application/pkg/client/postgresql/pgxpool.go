@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Meystergod/online-store-api/application/pkg/logging"
+	"github.com/Meystergod/online-store-api/pkg/logging"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )

@@ -7,10 +7,10 @@ app-config:
     password: "admin"
 
 http:
-  ip: 0.0.0.0
-  port: 8000
+  http_ip: 0.0.0.0
+  http_port: 8000
   cors:
-    allowed-methods: [ "GET", "POST", "PUT", "PATCH", "DELETE" ]
+    allowed-methods: [ "GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE" ]
     allowed-origins:
       - "*"
     allow-credentials: true
@@ -31,3 +31,14 @@ http:
       - "Authorization"
       - "Content-Disposition"
     debug: true
+
+grpc:
+  http_ip: 0.0.0.0
+  http_port: 8001
+
+postgre-sql:
+  username: "meyster"
+  password: "postgres"
+  host: 0.0.0.0
+  port: 5432
+  database: "onlinestoredb"

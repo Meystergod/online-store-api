@@ -22,8 +22,8 @@ type Config struct {
 		} `yaml:"admin-user"`
 	} `yaml:"app-config"`
 	HTTP struct {
-		IP   string `yaml:"ip" env:"BIND_IP" env-default:"0.0.0.0"`
-		Port string `yaml:"port" env:"PORT" env-default:"8000"`
+		IP   string `yaml:"http_ip" env:"HTTP_IP" env-default:"0.0.0.0"`
+		Port string `yaml:"http_port" env:"HTTP_PORT" env-default:"8000"`
 		CORS struct {
 			AllowedMethods     []string `yaml:"allowed-methods" env:"HTTP-CORS-ALLOWED-METHODS"`
 			AllowedOrigins     []string `yaml:"allowed-origins" env:"HTTP-CORS-ALLOWED-ORIGINS"`
@@ -34,12 +34,16 @@ type Config struct {
 			Debug              bool     `yaml:"debug" env:"HTTP-CORS-DEBUG"`
 		} `yaml:"cors"`
 	} `yaml:"http"`
+	GRPC struct {
+		IP   string `yaml:"grpc_ip" env:"GRPC_IP" env-default:"0.0.0.0"`
+		Port string `yaml:"grpc_port" env:"GRPC_PORT" env-default:"8001"`
+	} `yaml:"grpc"`
 	PostgreSQL struct {
-		Username string `env:"PSQL_USERNAME" env-required:"true"`
-		Password string `env:"PSQL_PASSWORD" env-required:"true"`
-		Host     string `env:"PSQL_HOST" env-required:"true"`
-		Port     string `env:"PSQL_PORT" env-required:"true"`
-		Database string `env:"PSQL_DATABASE" env-required:"true"`
+		Username string `yaml:"username" env:"PSQL_USERNAME" env-required:"true"`
+		Password string `yaml:"password" env:"PSQL_PASSWORD" env-required:"true"`
+		Host     string `yaml:"host" env:"PSQL_HOST" env-required:"true"`
+		Port     string `yaml:"port" env:"PSQL_PORT" env-required:"true"`
+		Database string `yaml:"database" env:"PSQL_DATABASE" env-required:"true"`
 	} `yaml:"postgre-sql"`
 }
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"net/http"
 	"os"
@@ -13,22 +14,27 @@ import (
 
 	_ "github.com/Meystergod/online-store-api/docs"
 	"github.com/Meystergod/online-store-api/internal/config"
+	"github.com/Meystergod/online-store-api/internal/controllers/grpc/v1/product"
 	"github.com/Meystergod/online-store-api/pkg/client/postgresql"
 	"github.com/Meystergod/online-store-api/pkg/logging"
 	"github.com/Meystergod/online-store-api/pkg/metric"
 	"github.com/Meystergod/online-store-api/pkg/shutdown"
+	pb_online_store_products "github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store/products/v1"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"google.golang.org/grpc"
 )
 
 type App struct {
-	cfg        *config.Config
-	router     *httprouter.Router
-	httpServer *http.Server
-	pgClient   *pgxpool.Pool
+	cfg                  *config.Config
+	router               *httprouter.Router
+	httpServer           *http.Server
+	grpcServer           *grpc.Server
+	pgClient             *pgxpool.Pool
+	productServiceServer pb_online_store_products.ProductServiceServer
 }
 
 func NewApp(ctx context.Context, cfg *config.Config) (App, error) {
@@ -59,10 +65,13 @@ func NewApp(ctx context.Context, cfg *config.Config) (App, error) {
 		logger.Fatal(err)
 	}
 
+	productServiceServer := product.NewServer(pb_online_store_products.UnimplementedProductServiceServer{})
+
 	return App{
-		cfg:      cfg,
-		router:   router,
-		pgClient: pgClient,
+		cfg:                  cfg,
+		router:               router,
+		pgClient:             pgClient,
+		productServiceServer: productServiceServer,
 	}, nil
 }
 
@@ -71,9 +80,35 @@ func (s *App) Run(ctx context.Context) error {
 	grp.Go(func() error {
 		return s.startHTTP(ctx)
 	})
+	grp.Go(func() error {
+		return s.startGRPC(ctx, s.productServiceServer)
+	})
 	logging.GetLogger(ctx).Info("application initialized and started")
 
 	return grp.Wait()
+}
+
+func (s *App) startGRPC(ctx context.Context, server pb_online_store_products.ProductServiceServer) error {
+	logger := logging.GetLogger(ctx).WithFields(map[string]interface{}{
+		"IP":   s.cfg.GRPC.IP,
+		"PORT": s.cfg.GRPC.Port,
+	})
+	logger.Info("GRPC server initializing")
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.cfg.GRPC.IP, s.cfg.GRPC.Port))
+	if err != nil {
+		logger.WithError(err).Fatal("failed to create listener")
+	}
+
+	serverOptions := []grpc.ServerOption{}
+
+	s.grpcServer = grpc.NewServer(serverOptions...)
+
+	pb_online_store_products.RegisterProductServiceServer(s.grpcServer, server)
+
+	reflection.Register(s.grpcServer)
+
+	return s.grpcServer.Serve(listener)
 }
 
 func (s *App) startHTTP(ctx context.Context) error {

@@ -1,10 +1,9 @@
-module github.com/Meystergod/online-store-api
+module github.com/Meystergod/online-store-api/application
 
 go 1.19
 
 require (
 	github.com/Masterminds/squirrel v1.5.3
-	github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109063116-471512d78a0b
 	github.com/ilyakaznacheev/cleanenv v1.4.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgx/v4 v4.17.2
@@ -20,7 +19,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/Meystergod/online-store-grpc-contracts/gen/go/common v0.0.0-20221109061521-4c63dce5ae8d // indirect
+	github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109154042-8b80bf465afa // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/spec v0.20.6 // indirect

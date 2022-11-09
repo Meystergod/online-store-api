@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 
-	app "github.com/Meystergod/online-store-api/internal/application"
-	"github.com/Meystergod/online-store-api/internal/config"
-	"github.com/Meystergod/online-store-api/pkg/logging"
+	app "github.com/Meystergod/online-store-api/application/internal/application"
+	"github.com/Meystergod/online-store-api/application/internal/config"
+	"github.com/Meystergod/online-store-api/application/pkg/logging"
 )
 
 func main() {

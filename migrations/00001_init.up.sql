@@ -14,6 +14,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE public.user
 (
     id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL,
     password TEXT NOT NULL,
     first_name TEXT,
     last_name TEXT,
@@ -63,8 +64,8 @@ CREATE TABLE public.product
     brand TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    price BIGINT NOT NULL,
-    image_id UUID,
+    price TEXT NOT NULL,
+    image_id TEXT,
     specifications JSONB,
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,

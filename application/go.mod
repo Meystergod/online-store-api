@@ -19,7 +19,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109154042-8b80bf465afa // indirect
+	github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221110080417-caf2594700e3 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/spec v0.20.6 // indirect

@@ -13,6 +13,8 @@ github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-202
 github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109063116-471512d78a0b/go.mod h1:rnqrv6PberxZIabHOpTn0kOdafjAXKyh0O19LJzzs7c=
 github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109154042-8b80bf465afa h1:3We71SyooSxSJf8WX9z9KljKGeQC+UYMfqyQEw4Dz3A=
 github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221109154042-8b80bf465afa/go.mod h1:XHUJNYfy2OOLcef0MmHWbHVDMLsiEjGoXTh6FI1UH+Q=
+github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221110080417-caf2594700e3 h1:Z0WsSJ598dnr3To1hnTot/q9wagDA1Ch5OimJIY0HII=
+github.com/Meystergod/online-store-grpc-contracts/gen/go/online_store v0.0.0-20221110080417-caf2594700e3/go.mod h1:21ln0JEvK6PKAPqnwstWl3QFYce4CKi6i7cI7BmeeJE=
 github.com/agiledragon/gomonkey/v2 v2.3.1 h1:k+UnUY0EMNYUFUAQVETGY9uUTxjMdnUkP0ARyJS1zzs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
